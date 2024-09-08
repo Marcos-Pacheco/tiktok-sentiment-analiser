@@ -1,0 +1,16 @@
+"""
+  ESTRUTURA DE UM COMENTÁRIO - 04/09/2024
+  - DivCommentContainer
+	- DivCommentListContainer
+		- DivCommentObjectWrapper
+			- DivCommentItemWrapper
+				- DivCommentContentWrapper
+					- data-e2e="comment-level-1"
+						- span
+							- <comentario>
+				- DivReplyContainer
+					- DivCommentItemWrapper
+						- DivCommentContentWrapper
+							- data-e2e="comment-level-2"
+								- <comentario>
+"""

@@ -29,3 +29,6 @@ source env/bin/activate
 
 # Install dependencies
 pip install -r requirements.txt
+
+# Install the webdrivers
+sudo $(which python) -m webdrivermanager 'firefox:latest' 'chrome:latest' --linkpath /usr/local/bin

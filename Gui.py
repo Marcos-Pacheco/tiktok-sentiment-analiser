@@ -11,3 +11,6 @@ def confirm(title: str, message: str) -> bool:
     elif response:
         # User clicked "Yes"  
         return True
+
+def alert(title: str, message: str) -> bool:
+    messagebox.showwarning(title,message)
