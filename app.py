@@ -1,6 +1,5 @@
-from Gui import confirm,alert
-from Helpers import dd
-from Scrapper import Scrapper
+from globals import *
+from scrapper import Scrapper
 
 class App:
     def __init__(self):

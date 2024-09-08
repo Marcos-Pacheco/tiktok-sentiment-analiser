@@ -1,6 +1,4 @@
-import tkinter as tk
 from tkinter import messagebox
-
 
 def confirm(title: str, message: str) -> bool:
     # response = messagebox.askyesnocancel(title, message)
