@@ -2,26 +2,32 @@ from globals import *
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.firefox.service import Service
+from rich.console import Console
 import time
 
-class Scrapper:
-    driver = None
+class Scraper:
+    __driverName = None
+    __driver = None
 
     # inicia o objeto Scrapper com uma instância de webdriver
     def __init__(self, driverName: str):
         driver = getattr(webdriver, driverName, None)
         if driver:
+            self.__driverName = driverName
             if ('Firefox' in driverName):
                 service = Service("/snap/bin/firefox.geckodriver")
-                self.driver = webdriver.Firefox(service=service)
+                self.__driver = webdriver.Firefox(service=service)
             else:
-                self.driver = driver()
+                self.__driver = driver()
         else:
             raise ValueError(f"Driver {driverName} not supported.")
 
     # passa todas as chamadas de método que não existem nessa classe para o objeto webdriver
     def __getattr__(self, method):
-        return lambda *args, **kwargs: getattr(self.driver, method)(*args, **kwargs)
+        if self.__driver:
+            return lambda *args, **kwargs: getattr(self.__driver, method)(*args, **kwargs)
+        else:
+            raise SystemError('No driver selected.')
 
     # carrega os comentários
     def load(self) -> None:
@@ -29,29 +35,29 @@ class Scrapper:
 
         previous_html = self.__get_inner_html(container)
         unchanged_count = 0 # count how many times the checked for changes and there were none
-        max_unchanged_checks = 5 # maximum ammount of change checks. If reached, means that no more comments will be loaded
-        secs = 5
+
+        console = Console()
 
         try:
-            print('=== starting load process ===')
+            print('starting...')
             self.__scroll_end(container)
-            while unchanged_count < max_unchanged_checks:
-                time.sleep(secs)
+            while unchanged_count < MAX_UNCHANGED_CHECKS:
+                time.sleep(TIME_BETWEEN_AUTOMATED_ACTIONS)
                 current_html = self.__get_inner_html(container)
                 if current_html != previous_html:
-                    print('=== loaded more comments ===')
+                    print('loaded more...')
                     self.__scroll_end(container)
                     unchanged_count = 0
                     previous_html = current_html
                 else:
                     unchanged_count += 1
-                    tries_left = max_unchanged_checks - unchanged_count
+                    tries_left = MAX_UNCHANGED_CHECKS - unchanged_count
                     if tries_left:
-                        print(f'=== nothing found on this try. {tries_left} tries left. waiting {secs} secs ===')
+                        print(f'nothing found. {tries_left} tries left...')
         except Exception as e:
-            alert('Error',f'The following error occured while loading: {e}')
+            raise e
         
-        print('=== load process ended ===')
+        print('done')
             
 
     def extract(self):
@@ -60,10 +66,13 @@ class Scrapper:
             print(comment.text)
 
     def __scroll_end(self,el) -> None:
-        self.driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
+        self.__driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
 
     def __get_inner_html(self,el) -> str:
         return el.get_attribute('innerHTML')
     
     def __find_elements(self,identifier: str) -> None:
-        return self.driver.find_elements(By.CSS_SELECTOR,identifier)
+        return self.__driver.find_elements(By.CSS_SELECTOR,identifier)
+
+    def driver_name(self) -> str:
+        return self.__driverName
