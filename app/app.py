@@ -75,8 +75,9 @@ try:
                 app.scraper().load()
         else:
             print('Cannot proceed. Exiting.')
+    app.scraper().extract()
     input('End')
 except Exception as e:
     console.print_exception(show_locals=True)
-# finally:
-    # app.scraper().quit()
+finally:
+    app.scraper().quit()

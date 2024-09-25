@@ -15,11 +15,12 @@ class Scraper:
         driver = getattr(webdriver, driverName, None)
         if driver:
             self.__driverName = driverName
-            if ('Firefox' in driverName):
-                service = Service("/snap/bin/firefox.geckodriver")
-                self.__driver = webdriver.Firefox(service=service)
-            else:
-                self.__driver = driver()
+            if 'Firefox' in driverName:
+                options = webdriver.FirefoxOptions()
+            if 'Chrome' in driverName:
+                options = webdriver.ChromeOptions()
+            
+            self.__driver=webdriver.Remote(command_executor="http://selenium:4444",options=options)
         else:
             raise ValueError(f"Driver {driverName} not supported.")
 
@@ -69,15 +70,15 @@ class Scraper:
                 for reply_container in replies_containers:
                     try:
                         btn = reply_container.find_element(By.TAG_NAME,'span')
-                        print(self.__get_inner_html(btn))
+                        # print(self.__get_inner_html(btn))
                         self.__driver.execute_script('arguments[0].scrollIntoView(true);', reply_container)
                         self.__driver.execute_script('arguments[0].click();', btn)
                         time.sleep(TIME_BETWEEN_AUTOMATED_ACTIONS)
                     except StaleElementReferenceException:
-                        print('stale, skiping...')
+                        # print('stale, skiping...')
                         continue
                 replies_containers = self.__driver.find_elements(By.XPATH, f"//div[contains(@class, 'DivViewRepliesContainer') and ({query})]")
-                print(f'reloaded replie divs: now - {len(replies_containers)} was - {was}')
+                # print(f'reloaded replie divs: now - {len(replies_containers)} was - {was}')
                 time.sleep(TIME_BETWEEN_AUTOMATED_ACTIONS+2)
 
         except Exception as e:
@@ -87,9 +88,11 @@ class Scraper:
             
 
     def extract(self):
-        comments = self.__driver.find_elements("[class*='DivCommentItemContainer']")
+        # comments = self.__driver.find_elements("[class*='DivCommentItemContainer']")
+        # comments = self.__driver.find_elements("[class*='DivCommentHeaderWrapper']")
+        comments = self.__driver.find_elements(By.XPATH,"//span[@attribute='data-e2e']")
         for comment in comments:
-            print(comment.text)
+            print(comment)
 
     def driver_name(self) -> str:
         return self.__driverName
