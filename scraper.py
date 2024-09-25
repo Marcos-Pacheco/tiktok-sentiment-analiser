@@ -2,6 +2,7 @@ from globals import *
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.firefox.service import Service
+from selenium.common.exceptions import StaleElementReferenceException
 from rich.console import Console
 import time
 
@@ -31,29 +32,54 @@ class Scraper:
 
     # carrega os comentários
     def load(self) -> None:
-        container = self.__find_elements('[class*="DivCommentListContainer"]')[0]
+
+        # parar de rodar o vídeo
+        self.__driver.execute_script('document.getElementsByTagName("video")[0].pause()')
+
+        container = self.__driver.find_element(By.CSS_SELECTOR,'[class*="DivCommentListContainer"]')
 
         previous_html = self.__get_inner_html(container)
         unchanged_count = 0 # count how many times the checked for changes and there were none
 
-        console = Console()
-
         try:
-            print('starting...')
+            # carrega todos os comentários level-1
+            print('expanding level-1 comments...')
             self.__scroll_end(container)
             while unchanged_count < MAX_UNCHANGED_CHECKS:
                 time.sleep(TIME_BETWEEN_AUTOMATED_ACTIONS)
                 current_html = self.__get_inner_html(container)
                 if current_html != previous_html:
-                    print('loaded more...')
                     self.__scroll_end(container)
                     unchanged_count = 0
                     previous_html = current_html
                 else:
                     unchanged_count += 1
-                    tries_left = MAX_UNCHANGED_CHECKS - unchanged_count
-                    if tries_left:
-                        print(f'nothing found. {tries_left} tries left...')
+            
+            # carrega todos os comentários level-2
+            print('expanding level-2 comments...')
+            # replies_containers = self.__driver.find_elements(By.CSS_SELECTOR,'[class*="DivViewRepliesContainer"]')
+            # replies_containers = self.__driver.find_elements(By.XPATH, "//div[contains(@class, 'DivViewRepliesContainer') and span[(text()='Ocultar')]]")
+            
+            search = ['Ver','Visualizar','View','See']
+            query = " or ".join([f"contains(span/text(), '{word}')" for word in search])
+            replies_containers = self.__driver.find_elements(By.XPATH, f"//div[contains(@class, 'DivViewRepliesContainer') and ({query})]")
+
+            while len(replies_containers):
+                was = len(replies_containers)
+                for reply_container in replies_containers:
+                    try:
+                        btn = reply_container.find_element(By.TAG_NAME,'span')
+                        print(self.__get_inner_html(btn))
+                        self.__driver.execute_script('arguments[0].scrollIntoView(true);', reply_container)
+                        self.__driver.execute_script('arguments[0].click();', btn)
+                        time.sleep(TIME_BETWEEN_AUTOMATED_ACTIONS)
+                    except StaleElementReferenceException:
+                        print('stale, skiping...')
+                        continue
+                replies_containers = self.__driver.find_elements(By.XPATH, f"//div[contains(@class, 'DivViewRepliesContainer') and ({query})]")
+                print(f'reloaded replie divs: now - {len(replies_containers)} was - {was}')
+                time.sleep(TIME_BETWEEN_AUTOMATED_ACTIONS+2)
+
         except Exception as e:
             raise e
         
@@ -61,18 +87,15 @@ class Scraper:
             
 
     def extract(self):
-        comments = self.__find_elements("[class*='DivCommentItemContainer']")
+        comments = self.__driver.find_elements("[class*='DivCommentItemContainer']")
         for comment in comments:
             print(comment.text)
+
+    def driver_name(self) -> str:
+        return self.__driverName
 
     def __scroll_end(self,el) -> None:
         self.__driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
 
     def __get_inner_html(self,el) -> str:
         return el.get_attribute('innerHTML')
-    
-    def __find_elements(self,identifier: str) -> None:
-        return self.__driver.find_elements(By.CSS_SELECTOR,identifier)
-
-    def driver_name(self) -> str:
-        return self.__driverName

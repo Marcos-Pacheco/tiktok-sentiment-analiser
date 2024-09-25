@@ -9,8 +9,9 @@
 						- span
 							- <comentario>
 				- DivReplyContainer
-					- DivCommentItemWrapper
-						- DivCommentContentWrapper
-							- data-e2e="comment-level-2"
-								- <comentario>
-"""
+					- DivViewRepliesContainer
+						- DivCommentItemWrapper
+							- DivCommentContentWrapper
+								- data-e2e="comment-level-2"
+									- <comentario>
+"""				- DivReplyActionContainer
