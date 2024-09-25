@@ -1,27 +1,30 @@
-Projeto de TCC
+## Instalação
+⚠️ ***Este projeto necessita ter docker instalado em sua máquina.***
 
-# Instruções de Execução
+Inicie os containeres de acordo com o webdriver(navegador) de sua preferência:
+```bash
+# firefox
+docker compose --profile firefox up -d
+# chrome
+docker compose --profile chrome up -d
+```
 
-## Iniciar projeto
-Para iniciar o projeto, dê permissões de execução para o arquivo `init.sh` e o execute:
+Em seguida instale as depedências do container python:
+```bash
+docker compose exec app pip install -r requirements.txt
+```
 
-    chmod +x init.sh
-    ./init.sh
+## Scraping
+Um dos recursos desse projeto é o scraping de comentário de vídeos do TikTok. Para fazer o scraping de comentários, siga os seguintes passos:
+- Preencha o arquivo `app/urls.txt` com urls dos vídeos que deseja fazer o scraping, separados por linha;
+- Execute o comando
+    ```bash
+    docker compose exec app py app.py
+    ```
+Você poderá encontrar o painel de execução do scraping no endereço `localhost:4444`
 
-## Ativar Ambiente
-    source env/bin/activate
-
-## PiP Version
-    py -m pip --version
-
-## Criar arquivo de dependências
-    py -m pip freeze > requirements.txt
-
-## Instalar dependências
-    python -m pip install -r requirements.txt
-
-## Criar arquivo de versionamento das dependências
-    py -m pip install -c constraints.txt
-
-## Executar Scrapper
-    py App.py
+## Desativando
+Para remover os containeres, execute o seguinte código:
+```bash
+docker compose --profile "*" down
+```

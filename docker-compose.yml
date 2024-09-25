@@ -1,0 +1,36 @@
+services:
+
+  # Selenium
+  selenium-chrome:
+    profiles: [chrome]
+    image: selenium/standalone-chrome:129.0
+    container_name: selenium
+    ports:
+      - "4444:4444"  # Expose the WebDriver port
+    shm_size: '2gb'  # Increase shared memory size to prevent browser crashes
+
+  selenium-firefox:
+    profiles: [firefox]
+    image: selenium/standalone-firefox:130.0
+    container_name: selenium
+    ports:
+      - "4444:4444"  # Expose the WebDriver port
+    shm_size: '2gb'  # Increase shared memory size to prevent browser crashes
+
+  # Python app
+  app:
+    profiles: [chrome, firefox]
+    build:
+      context: ./
+      dockerfile: ./docker/Dockerfiles/python-3.10/Dockerfile
+    container_name: app
+    volumes:
+      - ./app:/app
+    # command: python /app/app.py
+    command: tail -f /dev/null
+  
+
+#Docker Networks
+networks:
+  lumen:
+    driver: bridge
