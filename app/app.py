@@ -75,7 +75,11 @@ try:
                 app.scraper().load()
         else:
             print('Cannot proceed. Exiting.')
-    app.scraper().extract()
+    extraction = app.scraper().extract()
+    comments = app.scraper().parse(extraction)
+    print(comments)
+    app.scraper().export(comments)
+
     input('End')
 except Exception as e:
     console.print_exception(show_locals=True)

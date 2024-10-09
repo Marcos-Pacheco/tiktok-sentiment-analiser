@@ -5,6 +5,7 @@ from selenium.webdriver.firefox.service import Service
 from selenium.common.exceptions import StaleElementReferenceException
 from rich.console import Console
 import time
+import json
 
 class Scraper:
     __driverName = None
@@ -90,9 +91,36 @@ class Scraper:
     def extract(self):
         # comments = self.__driver.find_elements("[class*='DivCommentItemContainer']")
         # comments = self.__driver.find_elements("[class*='DivCommentHeaderWrapper']")
-        comments = self.__driver.find_elements(By.XPATH,"//span[@attribute='data-e2e']")
+        # comments = self.__driver.find_elements(By.XPATH,"//span[@attribute='data-e2e']")
+        comments = self.__driver.find_elements(By.XPATH,"//span[starts-with(@data-e2e, 'comment-level-')]//span[1]")
+        
+        return [comment.get_attribute('innerHTML') for comment in comments]
+
+        # for comment in comments:
+        #     print(comment.get_attribute('innerHTML'))
+    
+    def parse(self,comments):
+        parsed = {
+            'date-of-execution':'',
+            'scrapped-on-version':''
+        }
         for comment in comments:
-            print(comment)
+            node = {
+                'user': '',
+                'date': '',
+                'comment': comment,
+                'likes': '',
+            }
+            parsed.update({node})
+        parsed.update({'comments-total': len(comments)})
+        return parsed
+
+
+    def export(self,parsed, type = 'json'):
+        if type == 'json':
+            with open('comments.json', 'w') as f:
+                json.dump(parsed, f)
+
 
     def driver_name(self) -> str:
         return self.__driverName
