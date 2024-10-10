@@ -1,3 +1,4 @@
+from globals import *
 import os
 import sys
 from scraper import Scraper
@@ -5,7 +6,6 @@ from rich.prompt import Prompt, Confirm
 from rich.console import Console
 from rich.progress import Progress, SpinnerColumn, TextColumn
 from pyfiglet import Figlet
-from globals import *
 
 def display_intro():
     """Displays the application introduction."""

@@ -1,3 +1,4 @@
-from helpers import dd
-# from gui import confirm,alert
+import sys
+sys.path.append('vendor')
+
 from settings import *

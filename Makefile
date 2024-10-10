@@ -14,6 +14,6 @@ build:
 rebuild:
 	$(DOCKER_COMPOSE) up --build
 init:
-	$(DOCKER_COMPOSE) exec app pip install -r requirements.txt
+	$(DOCKER_COMPOSE) exec app bash -c "mkdir -p vendor && pip install --target=./vendor -r requirements.txt"
 start:
 	$(DOCKER_COMPOSE) exec app python app.py

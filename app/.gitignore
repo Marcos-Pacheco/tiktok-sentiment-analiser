@@ -109,3 +109,4 @@ GitHub.sublime-settings
 # APP
 urls.txt
 /outputs/*
+/vendor
