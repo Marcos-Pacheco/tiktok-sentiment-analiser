@@ -1,6 +1,8 @@
 from dotenv import load_dotenv
 from os import getenv as env
 
+""" File that contains project constants pulled from .env file"""
+
 load_dotenv()
 
 APP_NAME=env('APP_NAME','app')
