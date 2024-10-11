@@ -74,9 +74,8 @@ def main():
             with Progress(SpinnerColumn(), TextColumn('[progress.description]{task.description}'), transient=True) as progress:
                 progress.add_task(description="Processing...", total=None)
                 scraper.load_comments()
-
-        extraction = scraper.extract_comments()
-        scraper.export_comments(scraper.parse_comments(extraction))
+                extraction = scraper.extract_comments()
+                scraper.export_comments(scraper.parse_comments(extraction))
 
         print('Scraping and export completed successfully.')
     except Exception as e:
