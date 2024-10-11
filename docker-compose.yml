@@ -26,6 +26,9 @@ services:
     container_name: app
     volumes:
       - ./app:/app
+      - /etc/timezone:/etc/timezone:ro
+      - /etc/localtime:/etc/localtime:ro
+
     # command: python /app/app.py
     command: tail -f /dev/null
   
