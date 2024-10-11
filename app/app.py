@@ -5,6 +5,8 @@ from scraper import Scraper
 from rich.prompt import Prompt, Confirm
 from rich.console import Console
 from rich.progress import Progress, SpinnerColumn, TextColumn
+from rich import print as rich_print
+from rich_menu import Menu
 from pyfiglet import Figlet
 
 def display_intro():
@@ -20,11 +22,39 @@ def display_intro():
 
 def get_driver_choice():
     """Prompts the user to select a webdriver."""
-    return Prompt.ask('Select a webdriver', choices=['Firefox', 'Chrome'], default='Chrome')
+    choices=['Chrome','Firefox']
+    menu = Menu(
+        *choices,
+        color='yellow',
+        panel_title='Select a webdriver',
+        title='',
+        align='left',
+        rule=False,
+        panel=True,
+        selection_char='-> ',
+        highlight_color='cyan'
+    )
+    selected = menu.ask(screen=False)
+    rich_print(f'Webdriver: [bold cyan]{selected}[/bold cyan]')
+    return selected
 
 def get_input_method():
     """Prompts the user to select an input method."""
-    return Prompt.ask('Select an input method', choices=['From Typing', 'From File'], default='From File')
+    choices=['From File','From Typing']
+    menu = Menu(
+        *choices,
+        color='yellow',
+        panel_title='Select an input method',
+        title='',
+        align='left',
+        rule=False,
+        panel=True,
+        selection_char='-> ',
+        highlight_color='cyan'
+    )
+    selected = menu.ask(screen=False)
+    rich_print(f'Input method: [bold cyan]{selected}[/bold cyan]')
+    return selected
 
 def read_urls_from_file(filepath='urls.txt'):
     """Reads URLs from a file."""
@@ -53,7 +83,7 @@ def main():
     input_method = get_input_method()
 
     if input_method == 'From File':
-        print('Reading URLs from "urls.txt"...')
+        rich_print('Reading URLs from [bold cyan]"urls.txt"[/bold cyan]...')
         urls = read_urls_from_file()
     else:
         url = Prompt.ask('Type the TikTok URL you wish to scrape')
@@ -63,7 +93,7 @@ def main():
 
     try:
         for url in urls:
-            print(f'Scraping {url}')
+            rich_print(f'Scraping [bold cyan]{url}[/bold cyan]')
             scraper.get(url)
 
             # Wait for human verification
