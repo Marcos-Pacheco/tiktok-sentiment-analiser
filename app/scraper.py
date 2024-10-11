@@ -92,10 +92,16 @@ class Scraper:
         query = " or ".join([f"contains(span/text(), '{text}')" for text in search_texts])
         xpath = f"//div[contains(@class, 'DivViewRepliesContainer') and ({query})]"
 
+        expected = self._get_expected_comments_len()
+        repeats = 0
         while True:
             reply_buttons = self.driver.find_elements(By.XPATH, xpath)
             if not reply_buttons:
                 break
+            if expected * (1 - COMMENTS_MARGIN) < len(self._get_comments_elements()) < expected * (1 + COMMENTS_MARGIN):
+                repeats += 1
+                if repeats > 20:
+                  break
 
             for button_container in reply_buttons:
                 try:
@@ -113,12 +119,18 @@ class Scraper:
     def extract_comments(self):
         """Extracts comments from the loaded page."""
         logger.info('Extracting comments...')
-        comments_elements = self.driver.find_elements(
-            By.XPATH, "//span[starts-with(@data-e2e, 'comment-level-')]//span[1]"
-        )
+        comments_elements = self._get_comments_elements()
         comments = [elem.get_attribute('innerHTML') for elem in comments_elements]
         logger.info(f'Extracted {len(comments)} comments.')
         return comments
+    
+    def _get_comments_elements(self):
+        return self.driver.find_elements(
+            By.XPATH, "//span[starts-with(@data-e2e, 'comment-level-')]//span[1]"
+        )
+    
+    def _get_expected_comments_len(self):
+        return  int(self.driver.find_element(By.CSS_SELECTOR, '[class*="PCommentTitle"]').get_attribute('innerHTML').split()[0])
     
     def parse_comments(self, comments):
         """Parses the extracted comments into a structured format."""
@@ -138,7 +150,8 @@ class Scraper:
             'executed_at': time.strftime('%Y-%m-%d %H:%M:%S'),
             'app_version': APP_VERSION,
             'from': self.driver.current_url,
-            'total': len(parsed_comments),
+            'total_found': len(parsed_comments),
+            'total_expected': self._get_expected_comments_len(),
             'comments': parsed_comments
         }
         return result
