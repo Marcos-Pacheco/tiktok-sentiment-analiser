@@ -48,6 +48,7 @@ class Scraper:
 
     def get(self, url: str):
         """Navigates to the specified URL."""
+        self.url = url
         self.driver.get(url)
 
     def load_comments(self):
@@ -149,7 +150,8 @@ class Scraper:
         result = {
             'executed_at': time.strftime('%Y-%m-%d %H:%M:%S'),
             'app_version': APP_VERSION,
-            'from': self.driver.current_url,
+            'url_realized': self.driver.current_url,
+            'url_inputed': self.url,
             'total_found': len(parsed_comments),
             'total_expected': self._get_expected_comments_len(),
             'comments': parsed_comments
