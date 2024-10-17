@@ -24,6 +24,9 @@ services:
       context: ./
       dockerfile: ./docker/Dockerfiles/python-3.10/Dockerfile
     container_name: app
+    environment:
+      - HOST_USER_ID=${UID}
+      - HOST_USER_GROUP_ID=${GID}
     volumes:
       - ./app:/app
       - /etc/timezone:/etc/timezone:ro
@@ -31,6 +34,19 @@ services:
 
     # command: python /app/app.py
     command: tail -f /dev/null
+
+  doccano:
+    profiles: [chrome, firefox]
+    image: doccano/doccano
+    container_name: doccano
+    environment:
+      - ADMIN_USERNAME=admin
+      - ADMIN_EMAIL=admin@example.com
+      - ADMIN_PASSWORD=secret
+    volumes:
+      - ./doccano/data:/data
+    ports:
+      - "8000:8000"
   
 
 #Docker Networks

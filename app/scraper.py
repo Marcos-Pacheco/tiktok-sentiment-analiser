@@ -2,6 +2,8 @@ from globals import *
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.common.exceptions import StaleElementReferenceException
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
 from rich.logging import RichHandler
 import time
 import json
@@ -59,7 +61,12 @@ class Scraper:
         self.driver.execute_script('document.getElementsByTagName("video")[0].pause()')
 
         # Locate the comment container
-        container = self.driver.find_element(By.CSS_SELECTOR, '[class*="DivCommentListContainer"]')
+        # container = self.driver.find_element(By.CSS_SELECTOR, '[class*="DivCommentListContainer"]')
+        time.sleep(TIME_BETWEEN_ACTIONS*2)
+        container = WebDriverWait(self.driver,30).until(
+            EC.presence_of_element_located((By.CSS_SELECTOR, '[class*="DivCommentListContainer"]'))
+        )
+
         previous_html = container.get_attribute('innerHTML')
         unchanged_count = 0
 
@@ -136,14 +143,19 @@ class Scraper:
     def parse_comments(self, comments):
         """Parses the extracted comments into a structured format."""
         logger.info('Parsing comments...')
-        parsed_comments = []
-        for comment in comments:
+        parsed_comments = list()
+
+        for key in range(len(comments)):
             comment_data = {
-                'user': '',  # Placeholder, needs proper extraction
-                'date': '',  # Placeholder, needs proper extraction
-                'comment': comment,
-                'classification': '', # To be added manually
-                'likes': '',  # Placeholder, needs proper extraction
+                'id': key,
+                'data': {
+                    'text': comments[key],
+                    'meta_info':{ 
+                        'user': '',  # Placeholder, needs proper extraction
+                        'date': '',  # Placeholder, needs proper extraction
+                        'likes': '',  # Placeholder, needs proper extraction
+                    },
+                },
             }
             parsed_comments.append(comment_data)
 
@@ -154,14 +166,30 @@ class Scraper:
             'url_inputed': self.url,
             'total_found': len(parsed_comments),
             'total_expected': self._get_expected_comments_len(),
-            'comments': parsed_comments
+            'comments': parsed_comments,
+            
         }
         return result
+    
+    def parse_labels(self, comments):
+        """Parses the extracted comments into a structured format proper for classification."""
+        logger.info('Parsing labels...')
+        labels = list()
+
+        for key in range(len(comments)):
+            comment_data = {
+                'text': comments[key],
+                'label': []
+            }
+            labels.append(comment_data)
+
+        return labels
+
     
     def export_comments(self, data, filename=None):
         """Exports the parsed comments to a JSON file."""
         if not filename:
-          filename = time.strftime('outputs/comments-%Y%m%d%H%M%S.json')
+          filename = time.strftime('outputs/comments-%Y%m%d%H%M%S-scrape.json')
 
         logger.info(f'Exporting comments to {filename}...')
         try:
@@ -170,6 +198,21 @@ class Scraper:
             logger.info('Export completed successfully.')
         except Exception as e:
             logger.exception("Failed to export comments.")
+            raise e
+    
+    def export_labels(self, data, filename=None):
+        """Exports the parsed comments to a JSON file proper for classification."""
+
+        if not filename:
+          filename = time.strftime('outputs/comments-%Y%m%d%H%M%S-label.json')
+
+        logger.info(f'Exporting labels to {filename}...')
+        try:
+            with open(filename, 'w', encoding='utf-8') as f:
+                json.dump(data, f, ensure_ascii=False, indent=4)
+            logger.info('Export labels completed successfully.')
+        except Exception as e:
+            logger.exception("Failed to export labels.")
             raise e
         
     def quit(self):

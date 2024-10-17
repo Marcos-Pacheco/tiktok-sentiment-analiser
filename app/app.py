@@ -92,20 +92,27 @@ def main():
     scraper = Scraper(driver_name)
 
     try:
+        rich_print('See what\'s happening at [bold cyan]http://localhost:4444[bold cyan]')
+        human_check = 0
         for url in urls:
             rich_print(f'Scraping [bold cyan]{url}[/bold cyan]')
             scraper.get(url)
-
-            # Wait for human verification
-            if not Confirm.ask('Please complete any human verification required. Continue?', default=True):
-                print('Cannot proceed without human verification. Exiting.')
-                sys.exit(1)
+            
+            if human_check < 1: # Only needed in the first of the batch
+                human_check += 1
+                # Wait for human verification
+                if not Confirm.ask('Please complete any human verification required. Continue?', default=True):
+                    print('Cannot proceed without human verification. Exiting.')
+                    sys.exit(1)
 
             with Progress(SpinnerColumn(), TextColumn('[progress.description]{task.description}'), transient=True) as progress:
                 progress.add_task(description="Processing...", total=None)
                 scraper.load_comments()
                 extraction = scraper.extract_comments()
                 scraper.export_comments(scraper.parse_comments(extraction))
+                scraper.export_labels(scraper.parse_labels(extraction))
+        
+        os.system('chown -R $HOST_USER_ID:$HOST_USER_GROUP_ID /app/outputs')
 
         print('Scraping and export completed successfully.')
     except Exception as e:
