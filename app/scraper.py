@@ -40,7 +40,7 @@ class Scraper:
         # Initialize the remote WebDriver
         try:
             driver = webdriver.Remote(
-                command_executor=SELENIUM_REMOTE_URL,
+                command_executor=SELENIUM_CONTAINER_URL,
                 options=options
             )
             return driver
