@@ -1,7 +1,7 @@
 from globals import *
 import os
 import sys
-from scraper import Scraper
+from core.scraper import Scraper
 from rich.prompt import Prompt, Confirm
 from rich.progress import Progress, SpinnerColumn, TextColumn
 from rich import print as rich_print
@@ -24,7 +24,7 @@ class Scrape:
         scraper = Scraper(driver_name)
 
         try:
-            rich_print('See what\'s happening at [bold cyan]http://localhost:4444[bold cyan]')
+            rich_print(f'See what\'s happening at [bold cyan]{SELENIUM_URL}[bold cyan]')
             human_check = 0
             for url in urls:
                 rich_print(f'Scraping [bold cyan]{url}[/bold cyan]')
@@ -91,8 +91,7 @@ class Scrape:
     def read_urls_from_file(self,filepath='urls.txt'):
         """Reads URLs from a file."""
         if not os.path.exists(filepath):
-            print(f'File "{filepath}" not found')
-            sys.exit(1)
+            raise FileNotFoundError(f'File "{filepath}" not found')
 
         with open(filepath, 'r') as file:
             lines = file.readlines()
@@ -100,6 +99,6 @@ class Scrape:
         # Remove comments and whitespace
         urls = [line.strip() for line in lines if line.strip() and not line.strip().startswith('#')]
         if not urls:
-            print(f'No valid URLs found in "{filepath}". Exiting.')
-            sys.exit(1)
+            raise Exception(f'No valid URLs found in "{filepath}".')
+
         return urls

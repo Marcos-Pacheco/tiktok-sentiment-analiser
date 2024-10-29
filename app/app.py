@@ -6,6 +6,7 @@ from pyfiglet import Figlet
 from menu.scrape import Scrape
 from menu.classify import Classify
 from menu.analisys import Analisys
+import sys
 
 def display_intro():
     """Displays the application introduction."""
@@ -51,6 +52,8 @@ def main():
         case _:
             rich_print('Error: [bold red]feature selected is not found.[/bold red]')
             pass
+    print('end')
+    sys.exit(1)
 
 if __name__ == '__main__':
     main()
