@@ -189,7 +189,7 @@ class Scraper:
     def export_comments(self, data, filename=None):
         """Exports the parsed comments to a JSON file."""
         if not filename:
-          filename = time.strftime('outputs/comments-%Y%m%d%H%M%S-scrape.json')
+          filename = time.strftime('data/outputs/comments-%Y%m%d%H%M%S-scrape.json')
 
         logger.info(f'Exporting comments to {filename}...')
         try:
@@ -204,7 +204,7 @@ class Scraper:
         """Exports the parsed comments to a JSON file proper for classification."""
 
         if not filename:
-          filename = time.strftime('outputs/comments-%Y%m%d%H%M%S-label.json')
+          filename = time.strftime('data/outputs/comments-%Y%m%d%H%M%S-label.json')
 
         logger.info(f'Exporting labels to {filename}...')
         try:

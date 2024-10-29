@@ -44,7 +44,7 @@ class Scrape:
                     scraper.export_comments(scraper.parse_comments(extraction))
                     scraper.export_labels(scraper.parse_labels(extraction))
             
-            os.system('chown -R $HOST_USER_ID:$HOST_USER_GROUP_ID /app/outputs')
+            os.system('chown -R $HOST_USER_ID:$HOST_USER_GROUP_ID /app/data')
 
             print('Scraping and export completed successfully.')
         except Exception as e:
