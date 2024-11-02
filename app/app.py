@@ -6,6 +6,7 @@ from pyfiglet import Figlet
 from menu.scrape import Scrape
 from menu.classify import Classify
 from menu.analisys import Analisys
+from menu.train import Train
 import sys
 
 def display_intro():
@@ -21,7 +22,7 @@ def display_intro():
 
 def get_functionality_choice():
     """Prompts the user to choose a specific application feature."""
-    choices=['Scrape','Classify','Sentiment Analysis']
+    choices=['Scrape','Classify','Sentiment Analysis', 'Train Model']
     menu = Menu(
         *choices,
         color='yellow',
@@ -49,6 +50,8 @@ def main():
             Classify()
         case 'Sentiment Analysis':
             Analisys()
+        case 'Train Model':
+            Train(console)
         case _:
             rich_print('Error: [bold red]feature selected is not found.[/bold red]')
             pass
